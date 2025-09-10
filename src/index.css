@@ -1,0 +1,539 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 248 250 252;
+    --foreground: 15 23 42;
+
+    --card: 255 255 255;
+    --card-foreground: 15 23 42;
+
+    --popover: 255 255 255;
+    --popover-foreground: 15 23 42;
+
+    --primary: 99 102 241;
+    --primary-foreground: 248 250 252;
+
+    --secondary: 148 163 184;
+    --secondary-foreground: 15 23 42;
+
+    --muted: 241 245 249;
+    --muted-foreground: 100 116 139;
+
+    --accent: 139 92 246;
+    --accent-foreground: 248 250 252;
+
+    --destructive: 239 68 68;
+    --destructive-foreground: 248 250 252;
+
+    --border: 226 232 240;
+    --input: 226 232 240;
+    --ring: 99 102 241;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 255 255 255;
+    --sidebar-foreground: 15 23 42;
+    --sidebar-primary: 99 102 241;
+    --sidebar-primary-foreground: 248 250 252;
+    --sidebar-accent: 241 245 249;
+    --sidebar-accent-foreground: 15 23 42;
+    --sidebar-border: 226 232 240;
+    --sidebar-ring: 99 102 241;
+
+    /* Couleurs personnalisées pour l'école - SANS JAUNE */
+    --school-primary: 99 102 241;
+    --school-secondary: 139 92 246;
+    --school-accent: 6 182 212;
+    --school-success: 16 185 129;
+    --school-warning: 245 158 11;
+    --school-danger: 239 68 68;
+    --school-steel: 71 85 105;
+  }
+
+  .dark {
+    --background: 15 23 42;
+    --foreground: 248 250 252;
+
+    --card: 30 41 59;
+    --card-foreground: 248 250 252;
+
+    --popover: 30 41 59;
+    --popover-foreground: 248 250 252;
+
+    --primary: 99 102 241;
+    --primary-foreground: 15 23 42;
+
+    --secondary: 51 65 85;
+    --secondary-foreground: 248 250 252;
+
+    --muted: 51 65 85;
+    --muted-foreground: 148 163 184;
+
+    --accent: 139 92 246;
+    --accent-foreground: 248 250 252;
+
+    --destructive: 239 68 68;
+    --destructive-foreground: 248 250 252;
+
+    --border: 51 65 85;
+    --input: 51 65 85;
+    --ring: 99 102 241;
+
+    --sidebar-background: 30 41 59;
+    --sidebar-foreground: 248 250 252;
+    --sidebar-primary: 99 102 241;
+    --sidebar-primary-foreground: 15 23 42;
+    --sidebar-accent: 51 65 85;
+    --sidebar-accent-foreground: 248 250 252;
+    --sidebar-border: 51 65 85;
+    --sidebar-ring: 99 102 241;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* Amélioration de la typographie */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  h1 {
+    @apply text-2xl sm:text-3xl lg:text-4xl;
+  }
+
+  h2 {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+
+  h3 {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+
+  /* Amélioration des liens */
+  a {
+    @apply transition-colors duration-200;
+  }
+
+  /* Amélioration du focus - SANS JAUNE */
+  :focus-visible {
+    @apply outline-none ring-2 ring-indigo-500 ring-offset-2 ring-offset-background;
+  }
+
+  /* Override pour tous les inputs */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    @apply ring-2 ring-indigo-500 border-indigo-500 outline-none;
+  }
+
+  /* Override pour les boutons */
+  button:focus-visible {
+    @apply ring-2 ring-indigo-500 ring-offset-2;
+  }
+}
+
+@layer components {
+  /* Cartes modernes */
+  .modern-card {
+    @apply bg-white/95 backdrop-blur-sm border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 rounded-xl;
+  }
+
+  .modern-card-gradient {
+    @apply bg-gradient-to-br from-white via-slate-50 to-blue-50 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 rounded-xl;
+  }
+
+  /* Effets de verre */
+  .glass-effect {
+    @apply bg-white/90 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+  
+  /* Bordures avec dégradé */
+  .gradient-border {
+    @apply relative bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 p-0.5 rounded-xl;
+  }
+
+  .gradient-border::before {
+    @apply absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 rounded-xl blur-sm opacity-75;
+    content: '';
+    z-index: -1;
+  }
+  
+  /* Effet de survol */
+  .hover-lift {
+    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:-translate-y-1;
+  }
+
+  /* Dégradés d'école - SANS JAUNE */
+  .school-gradient {
+    background: linear-gradient(135deg, rgb(99, 102, 241) 0%, rgb(139, 92, 246) 25%, rgb(6, 182, 212) 75%, rgb(59, 130, 246) 100%);
+  }
+
+  .school-gradient-light {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 25%, rgba(6, 182, 212, 0.08) 75%, rgba(59, 130, 246, 0.08) 100%);
+    @apply border border-indigo-200/50;
+  }
+
+  .school-gradient-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+    @apply border border-indigo-100;
+  }
+
+  /* Cartes statistiques avec couleurs claires - SANS JAUNE */
+  .stats-card-indigo {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+    @apply border-l-4 border-l-indigo-500 border border-indigo-100;
+  }
+
+  .stats-card-purple {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+    @apply border-l-4 border-l-purple-500 border border-purple-100;
+  }
+
+  .stats-card-cyan {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+    @apply border-l-4 border-l-cyan-500 border border-cyan-100;
+  }
+
+  .stats-card-green {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+    @apply border-l-4 border-l-green-500 border border-green-100;
+  }
+
+  .stats-card-orange {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+    @apply border-l-4 border-l-orange-500 border border-orange-100;
+  }
+
+  .stats-card-red {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+    @apply border-l-4 border-l-red-500 border border-red-100;
+  }
+
+  /* En-têtes avec dégradé */
+  .school-header-gradient {
+    background: linear-gradient(135deg, rgb(99, 102, 241) 0%, rgb(139, 92, 246) 25%, rgb(6, 182, 212) 75%, rgb(59, 130, 246) 100%);
+  }
+
+  /* Boutons personnalisés - SANS JAUNE */
+  .btn-school-primary {
+    @apply bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+
+  .btn-school-secondary {
+    @apply bg-gradient-to-r from-purple-500 to-cyan-600 hover:from-purple-600 hover:to-cyan-700 text-white shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+
+  .btn-school-success {
+    @apply bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+
+  .btn-school-warning {
+    @apply bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+
+  .btn-school-danger {
+    @apply bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+
+  /* Boutons d'annulation - GRIS au lieu de JAUNE */
+  .btn-cancel {
+    @apply bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 hover:border-gray-400 transition-all duration-200;
+  }
+
+  /* Responsive containers */
+  .container-responsive {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Grid responsive */
+  .grid-responsive-1 {
+    @apply grid grid-cols-1;
+  }
+
+  .grid-responsive-2 {
+    @apply grid grid-cols-1 md:grid-cols-2;
+  }
+
+  .grid-responsive-3 {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .grid-responsive-4 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
+  }
+
+  .grid-responsive-auto {
+    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5;
+  }
+
+  /* Tables responsives */
+  .table-responsive {
+    @apply overflow-x-auto rounded-lg border border-slate-200 bg-white;
+  }
+
+  .table-responsive table {
+    @apply w-full border-collapse;
+  }
+
+  .table-responsive th {
+    @apply bg-slate-50 border-b border-slate-200 px-4 py-3 text-left text-sm font-medium text-slate-700;
+  }
+
+  .table-responsive td {
+    @apply border-b border-slate-200 px-4 py-3 text-sm text-slate-600;
+  }
+
+  /* Navigation responsive */
+  .nav-responsive {
+    @apply flex flex-col sm:flex-row gap-2 sm:gap-4;
+  }
+
+  /* Formulaires améliorés - SANS JAUNE */
+  .form-group {
+    @apply space-y-2;
+  }
+
+  .form-label {
+    @apply text-sm font-medium text-slate-700;
+  }
+
+  .form-input {
+    @apply w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 bg-white;
+  }
+
+  .form-input:focus {
+    @apply ring-2 ring-indigo-500 border-indigo-500 outline-none;
+  }
+
+  .form-error {
+    @apply text-sm text-red-600;
+  }
+
+  /* Alertes - SANS JAUNE */
+  .alert {
+    @apply p-4 rounded-lg border flex items-start gap-3;
+  }
+
+  .alert-info {
+    @apply bg-blue-50 border-blue-200 text-blue-800;
+  }
+
+  .alert-success {
+    @apply bg-green-50 border-green-200 text-green-800;
+  }
+
+  .alert-warning {
+    @apply bg-orange-50 border-orange-200 text-orange-800;
+  }
+
+  .alert-danger {
+    @apply bg-red-50 border-red-200 text-red-800;
+  }
+
+  /* Badges personnalisés - SANS JAUNE */
+  .badge-orphan {
+    @apply bg-red-100 text-red-700 border border-red-200 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1;
+  }
+
+  .badge-paid {
+    @apply bg-green-100 text-green-700 border border-green-200 px-2 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-partial {
+    @apply bg-orange-100 text-orange-700 border border-orange-200 px-2 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-unpaid {
+    @apply bg-red-100 text-red-700 border border-red-200 px-2 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-coranic {
+    @apply bg-green-100 text-green-700 border border-green-200 px-2 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-french {
+    @apply bg-blue-100 text-blue-700 border border-blue-200 px-2 py-1 rounded-full text-xs font-medium;
+  }
+
+  /* Onglets améliorés pour meilleure visibilité */
+  .tab-trigger {
+    @apply px-4 py-2 text-sm font-medium transition-all duration-200 border-b-2 border-transparent;
+  }
+
+  .tab-trigger:hover {
+    @apply bg-gray-50 text-gray-700;
+  }
+
+  .tab-trigger[data-state="active"] {
+    @apply bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-b-indigo-600 rounded-t-lg;
+  }
+
+  .tab-trigger[data-state="inactive"] {
+    @apply bg-gray-100 text-gray-600 border border-gray-200 rounded-t-lg hover:bg-gray-200 hover:text-gray-800;
+  }
+
+  /* Champs de recherche - BLANC au lieu de JAUNE */
+  .search-input {
+    @apply bg-white border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 placeholder-gray-400 text-gray-900;
+  }
+
+  .search-input:focus {
+    @apply ring-2 ring-indigo-500 border-indigo-500 bg-white;
+  }
+
+  /* Dialogs et modals - BLANC propre */
+  .dialog-content {
+    @apply bg-white border border-gray-200 shadow-xl rounded-lg;
+  }
+
+  .dialog-overlay {
+    @apply bg-black/50 backdrop-blur-sm;
+  }
+}
+
+/* Responsive breakpoints personnalisés */
+@media (max-width: 640px) {
+  .mobile-hidden {
+    @apply hidden;
+  }
+  
+  .mobile-full {
+    @apply w-full;
+  }
+  
+  .mobile-stack {
+    @apply flex-col;
+  }
+}
+
+@media (min-width: 768px) {
+  .tablet-grid {
+    @apply grid-cols-2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .desktop-grid {
+    @apply grid-cols-3;
+  }
+}
+
+/* Améliorations pour l'accessibilité */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus amélioré pour l'accessibilité - INDIGO */
+.focus-visible {
+  @apply outline-none ring-2 ring-offset-2 ring-indigo-500;
+}
+
+/* Print styles */
+@media print {
+  .print-hidden {
+    @apply hidden;
+  }
+  
+  .print-page-break {
+    page-break-before: always;
+  }
+  
+  body {
+    @apply bg-white text-black;
+  }
+  
+  .modern-card {
+    @apply shadow-none border border-gray-300;
+  }
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-100 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full hover:bg-slate-400;
+}
+
+/* Sélection de texte - INDIGO */
+::selection {
+  @apply bg-indigo-100 text-indigo-900;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  @apply inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin;
+}
+
+/* Skeleton loading */
+.skeleton {
+  @apply bg-slate-200 animate-pulse rounded;
+}
+
+.skeleton-text {
+  @apply skeleton h-4 mb-2;
+}
+
+.skeleton-avatar {
+  @apply skeleton w-10 h-10 rounded-full;
+}
+
+.skeleton-button {
+  @apply skeleton h-10 w-24 rounded-lg;
+}
+
+/* OVERRIDE FORCÉ pour éliminer TOUT jaune résiduel */
+.bg-yellow-50,
+.bg-yellow-100,
+.bg-yellow-200,
+.bg-yellow-300,
+.bg-yellow-400,
+.bg-yellow-500 {
+  @apply bg-white !important;
+}
+
+.text-yellow-600,
+.text-yellow-700,
+.text-yellow-800,
+.text-yellow-900 {
+  @apply text-gray-700 !important;
+}
+
+.border-yellow-200,
+.border-yellow-300,
+.border-yellow-400 {
+  @apply border-gray-300 !important;
+}
+
+.ring-yellow-500,
+.ring-yellow-400 {
+  @apply ring-indigo-500 !important;
+}
+
+.focus\:border-yellow-500:focus,
+.focus\:ring-yellow-500:focus {
+  @apply border-indigo-500 ring-indigo-500 !important;
+}
