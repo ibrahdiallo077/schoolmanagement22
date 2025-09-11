@@ -13,7 +13,7 @@ const { testConnection, closePool } = require('./config/database');
 const { initializeDatabase } = require('./config/database-init');
 
 const app = express();
-const PORT = process.env.API_PORT || 3001;
+const port = process.env.PORT || process.env.API_PORT || 3001;
 
 // Fonction simple pour stats auth
 function getAuthStats() {

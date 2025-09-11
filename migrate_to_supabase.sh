@@ -14,7 +14,6 @@ SUPABASE_USER="postgres.qhawjtjntayuxidfghxq"
 SUPABASE_PORT="6543"
 SUPABASE_PASSWORD="Diallo123!!Labe1222"
 
-
 echo "🚀 Début de la migration vers Supabase..."
 
 # 1. Export de la base locale
