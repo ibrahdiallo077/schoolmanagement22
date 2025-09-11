@@ -14,7 +14,7 @@
   ],
   "build": {
     "env": {
-      "VITE_API_URL": "https://classe-flow-manager-production.up.railway.app"
+      "VITE_API_URL": "https://schoolmanagement22.onrender.com"
     }
   }
 }
