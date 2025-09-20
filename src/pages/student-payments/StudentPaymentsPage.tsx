@@ -1,4 +1,4 @@
-// src/pages/student-payments/StudentPaymentsPage.tsx - VERSION OPTIMISÉE FILTRAGE FLUIDE
+// src/pages/student-payments/StudentPaymentsPage.tsx - VERSION CORRIGÉE AVEC FORMATAGE
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   DollarSign, Plus, RefreshCw, Download, X
@@ -75,7 +75,7 @@ interface FilterState {
 }
 
 const StudentPaymentsPage: React.FC = () => {
-  // ✅ ÉTATS PRINCIPAUX - SÉPARATION DONNÉES BRUTES / FILTRÉES
+  // ÉTATS PRINCIPAUX - SÉPARATION DONNÉES BRUTES / FILTRÉES
   const [stats, setStats] = useState<QuickStats>({
     total_revenue: 0,
     monthly_revenue: 0,
@@ -84,7 +84,7 @@ const StudentPaymentsPage: React.FC = () => {
     total_transactions: 0
   });
   
-  // 🚀 DONNÉES BRUTES - CHARGÉES UNE SEULE FOIS
+  // DONNÉES BRUTES - CHARGÉES UNE SEULE FOIS
   const [allPayments, setAllPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
@@ -93,7 +93,7 @@ const StudentPaymentsPage: React.FC = () => {
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   
-  // 🎯 FILTRES - ÉTAT LOCAL UNIQUEMENT
+  // FILTRES - ÉTAT LOCAL UNIQUEMENT
   const [filters, setFilters] = useState<FilterState>({
     searchTerm: '',
     statusFilter: 'all',
@@ -103,26 +103,20 @@ const StudentPaymentsPage: React.FC = () => {
     dateRange: { start: '', end: '' }
   });
   
-  // 📄 PAGINATION ET TRI - ÉTAT LOCAL
+  // PAGINATION ET TRI - ÉTAT LOCAL
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
   const [sortBy, setSortBy] = useState('payment_date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  // 🛠️ UTILITAIRES - INCHANGÉS
+  // === FONCTION DE FORMATAGE CORRIGÉE ===
   const formatGNF = (amount: number | string | undefined | null): string => {
     const numAmount = Number(amount || 0);
     if (isNaN(numAmount)) return '0 FG';
     
-    try {
-      return new Intl.NumberFormat('fr-GN', {
-        style: 'currency',
-        currency: 'GNF',
-        minimumFractionDigits: 0
-      }).format(numAmount).replace('GNF', 'FG');
-    } catch (error) {
-      return `${numAmount.toLocaleString()} FG`;
-    }
+    // Méthode manuelle pour garantir des espaces comme séparateurs
+    const formatted = numAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return `${formatted} FG`;
   };
 
   const getMonthName = (month: number | string | undefined | null): string => {
@@ -135,7 +129,7 @@ const StudentPaymentsPage: React.FC = () => {
     return months[monthNum - 1] || 'Mois inconnu';
   };
 
-  // 🔄 ADAPTATION DES DONNÉES - INCHANGÉE
+  // ADAPTATION DES DONNÉES
   const adaptPaymentData = (payment: any): Payment => {
     console.log('🔍 Données brutes reçues:', payment);
     
@@ -194,9 +188,9 @@ const StudentPaymentsPage: React.FC = () => {
     };
   };
 
-  // 🚀 CHARGEMENT OPTIMISÉ - UNE SEULE FOIS
+  // CHARGEMENT OPTIMISÉ - UNE SEULE FOIS
   const loadData = async (forceReload = false) => {
-    // ✅ Éviter les rechargements inutiles
+    // Éviter les rechargements inutiles
     if (!forceReload && allPayments.length > 0) {
       console.log('🚫 Rechargement évité - données déjà présentes');
       return;
@@ -207,7 +201,7 @@ const StudentPaymentsPage: React.FC = () => {
     try {
      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
       
-      // 📊 CHARGEMENT DES STATISTIQUES
+      // CHARGEMENT DES STATISTIQUES
       try {
         console.log('📊 Chargement des statistiques...');
         const statsResponse = await fetch(`${baseUrl}/api/payments/stats`, {
@@ -238,10 +232,10 @@ const StudentPaymentsPage: React.FC = () => {
         console.error('❌ Erreur chargement statistiques:', statsError);
       }
 
-      // 📋 CHARGEMENT DE TOUS LES PAIEMENTS - SANS FILTRES
+      // CHARGEMENT DE TOUS LES PAIEMENTS - SANS FILTRES
       console.log('📋 Chargement de TOUS les paiements...');
       const paymentEndpoints = [
-        `${baseUrl}/api/payments?limit=1000`, // Charger beaucoup de données
+        `${baseUrl}/api/payments?limit=1000`,
         `${baseUrl}/api/student-payments?limit=1000`,
         `${baseUrl}/api/payments/list?limit=1000`
       ];
@@ -282,7 +276,7 @@ const StudentPaymentsPage: React.FC = () => {
                 firstPayment: adaptedPayments[0] || 'Aucun'
               });
               
-              // 🎯 STOCKER TOUTES LES DONNÉES
+              // STOCKER TOUTES LES DONNÉES
               setAllPayments(adaptedPayments);
               paymentsLoaded = true;
               break;
@@ -314,7 +308,7 @@ const StudentPaymentsPage: React.FC = () => {
     }
   };
 
-  // 🚀 FILTRAGE CÔTÉ CLIENT ULTRA-RAPIDE AVEC useMemo
+  // FILTRAGE CÔTÉ CLIENT ULTRA-RAPIDE AVEC useMemo
   const filteredPayments = useMemo(() => {
     console.log('🔍 Filtrage côté client...', {
       totalPayments: allPayments.length,
@@ -324,7 +318,7 @@ const StudentPaymentsPage: React.FC = () => {
     return allPayments.filter(payment => {
       if (!payment) return false;
 
-      // 🔍 Recherche textuelle
+      // Recherche textuelle
       const matchesSearch = filters.searchTerm ? (
         (payment.student?.full_name || '').toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
         (payment.receipt_number || '').toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
@@ -332,13 +326,13 @@ const StudentPaymentsPage: React.FC = () => {
         (payment.paid_by || '').toLowerCase().includes(filters.searchTerm.toLowerCase())
       ) : true;
       
-      // 🎯 Filtres de statut
+      // Filtres de statut
       const matchesStatus = filters.statusFilter === 'all' || payment.status === filters.statusFilter;
       const matchesPeriod = filters.periodFilter === 'all' || payment.period === filters.periodFilter;
       const matchesType = filters.paymentTypeFilter === 'all' || payment.payment_type === filters.paymentTypeFilter;
       const matchesMethod = filters.paymentMethodFilter === 'all' || payment.payment_method === filters.paymentMethodFilter;
       
-      // 📅 Filtre de dates
+      // Filtre de dates
       let matchesDateRange = true;
       if (filters.dateRange?.start && filters.dateRange?.end && payment.payment_date) {
         try {
@@ -354,9 +348,9 @@ const StudentPaymentsPage: React.FC = () => {
       
       return matchesSearch && matchesStatus && matchesPeriod && matchesType && matchesMethod && matchesDateRange;
     });
-  }, [allPayments, filters]); // ⚡ Recalcul UNIQUEMENT si données ou filtres changent
+  }, [allPayments, filters]);
 
-  // 🔄 TRI CÔTÉ CLIENT AVEC useMemo
+  // TRI CÔTÉ CLIENT AVEC useMemo
   const sortedPayments = useMemo(() => {
     console.log('📊 Tri côté client...', { sortBy, sortOrder });
     
@@ -382,7 +376,7 @@ const StudentPaymentsPage: React.FC = () => {
     });
   }, [filteredPayments, sortBy, sortOrder]);
 
-  // 📄 PAGINATION CÔTÉ CLIENT AVEC useMemo
+  // PAGINATION CÔTÉ CLIENT AVEC useMemo
   const paginatedPayments = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -399,13 +393,13 @@ const StudentPaymentsPage: React.FC = () => {
 
   const totalPages = Math.ceil(sortedPayments.length / itemsPerPage);
 
-  // ✅ EFFET DE CHARGEMENT INITIAL UNIQUEMENT
+  // EFFET DE CHARGEMENT INITIAL UNIQUEMENT
   useEffect(() => {
     console.log('🚀 Chargement initial des données...');
-    loadData(true); // Force le premier chargement
-  }, []); // ⚠️ AUCUNE DÉPENDANCE - chargement unique !
+    loadData(true);
+  }, []);
 
-  // 🎯 GESTIONNAIRES D'ÉVÉNEMENTS - OPTIMISÉS
+  // GESTIONNAIRES D'ÉVÉNEMENTS - OPTIMISÉS
   const handleNewPayment = () => {
     setEditingPayment(null);
     setShowPaymentForm(true);
@@ -426,7 +420,6 @@ const StudentPaymentsPage: React.FC = () => {
   const handleClosePaymentForm = () => {
     setShowPaymentForm(false);
     setEditingPayment(null);
-    // ⚡ Recharger les données après modification
     loadData(true);
   };
 
@@ -438,7 +431,6 @@ const StudentPaymentsPage: React.FC = () => {
       alert(paymentData.success_message);
     }
     
-    // ⚡ Recharger les données après succès
     loadData(true);
   };
 
@@ -461,7 +453,6 @@ const StudentPaymentsPage: React.FC = () => {
         const result = await response.json();
         if (result?.success) {
           alert('Paiement supprimé avec succès');
-          // ⚡ Recharger après suppression
           loadData(true);
         } else {
           alert('Erreur lors de la suppression: ' + (result?.error || 'Erreur inconnue'));
@@ -475,22 +466,20 @@ const StudentPaymentsPage: React.FC = () => {
     }
   };
 
-  // 📄 GESTIONNAIRES POUR FILTRES ET PAGINATION - OPTIMISÉS
+  // GESTIONNAIRES POUR FILTRES ET PAGINATION - OPTIMISÉS
   const handleFiltersChange = (newFilters: Partial<FilterState>) => {
     console.log('🎯 Changement de filtres:', newFilters);
     setFilters(prev => ({ ...prev, ...newFilters }));
-    setCurrentPage(1); // Reset à la première page
-    // ⚡ PAS DE loadData() ICI - le filtrage est automatique !
+    setCurrentPage(1);
   };
 
   const handleSortChange = (field: string, order: 'asc' | 'desc') => {
     console.log('📊 Changement de tri:', { field, order });
     setSortBy(field);
     setSortOrder(order);
-    // ⚡ PAS DE loadData() ICI - le tri est automatique !
   };
 
-  // 🗂️ GESTIONNAIRES POUR MODALS - INCHANGÉS
+  // GESTIONNAIRES POUR MODALS
   const handleViewDetails = (payment: Payment) => {
     setSelectedPayment(payment);
     setShowDetailsModal(true);
@@ -511,37 +500,7 @@ const StudentPaymentsPage: React.FC = () => {
     setSelectedPayment(null);
   };
 
-  // 📄 GÉNÉRATION PDF - INCHANGÉE
-  const handleDownloadReceipt = async (payment: Payment) => {
-    if (!payment?.id) return;
-
-    try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      const response = await fetch(`${baseUrl}/api/payments/receipts/${payment.id}`, {
-        headers: {
-          'Authorization': 'Bearer dev-token'
-        }
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `recu_${payment.receipt_number || 'paiement'}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      } else {
-        await generatePDFReceipt(payment);
-      }
-    } catch (error) {
-      console.error('Erreur téléchargement reçu:', error);
-      await generatePDFReceipt(payment);
-    }
-  };
-
+  // === FONCTION PDF CORRIGÉE ===
   const generatePDFReceipt = async (payment: Payment) => {
     try {
       const { jsPDF } = await import('jspdf');
@@ -628,6 +587,7 @@ const StudentPaymentsPage: React.FC = () => {
         yPosition += 6;
       }
       
+      // FORMATAGE CORRIGÉ DES MONTANTS
       doc.text(`Montant dû : ${formatGNF(payment.amount_due)}`, margin, yPosition);
       yPosition += 6;
       
@@ -641,7 +601,7 @@ const StudentPaymentsPage: React.FC = () => {
       doc.text(`Payé par : ${payment.paid_by}`, margin, yPosition);
       yPosition += 10;
       
-      // Statut du paiement
+      // Statut du paiement avec formatage corrigé
       doc.setFont('helvetica', 'bold');
       if (payment.is_complete) {
         if (payment.difference > 0) {
@@ -691,7 +651,38 @@ const StudentPaymentsPage: React.FC = () => {
     }
   };
 
-  // 🔄 ÉCRAN DE CHARGEMENT
+  // TÉLÉCHARGEMENT PDF
+  const handleDownloadReceipt = async (payment: Payment) => {
+    if (!payment?.id) return;
+
+    try {
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${baseUrl}/api/payments/receipts/${payment.id}`, {
+        headers: {
+          'Authorization': 'Bearer dev-token'
+        }
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `recu_${payment.receipt_number || 'paiement'}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        await generatePDFReceipt(payment);
+      }
+    } catch (error) {
+      console.error('Erreur téléchargement reçu:', error);
+      await generatePDFReceipt(payment);
+    }
+  };
+
+  // ÉCRAN DE CHARGEMENT
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
@@ -730,7 +721,6 @@ const StudentPaymentsPage: React.FC = () => {
                 Actualiser
               </button>
             
-              
               <button
                 onClick={handleNewPayment}
                 className="group flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-xl"

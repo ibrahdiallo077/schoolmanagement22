@@ -560,6 +560,7 @@ router.get('/:id', async (req, res) => {
 // === CRÉER UN EMPLOYÉ ===
 // Fixed POST route for staff creation in staff.js
 
+// === ROUTE POST CORRIGÉE AVEC GESTION D'ERREURS COMPLÈTE ===
 router.post('/', async (req, res) => {
   try {
     const {
@@ -593,10 +594,10 @@ router.post('/', async (req, res) => {
       position, 
       contract_type, 
       employment_type,
-      phone // Add phone to debug
+      phone
     });
 
-    // FIXED: Updated phone validation to be more flexible
+    // Validation des données
     const validateStaffDataFixed = (data) => {
       const errors = [];
       
@@ -612,7 +613,6 @@ router.post('/', async (req, res) => {
         errors.push('Format d\'email invalide');
       }
       
-      // FIXED: More flexible phone validation
       if (data.phone) {
         const cleanPhone = data.phone.toString().replace(/[\s\-\+\(\)]/g, '');
         if (cleanPhone.length < 8 || cleanPhone.length > 15 || !/^\d+$/.test(cleanPhone)) {
@@ -675,7 +675,7 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Check for existing email
+    // Vérifier l'email existant
     if (email) {
       const existingEmail = await query(
         'SELECT id, first_name, last_name FROM staff WHERE LOWER(email) = LOWER($1)',
@@ -691,11 +691,65 @@ router.post('/', async (req, res) => {
       }
     }
 
-    // Generate staff number
-    const staffNumber = await generateStaffNumber(position);
-    console.log('📝 Numéro généré:', staffNumber);
+    // CORRECTION: Générer le numéro avec plusieurs tentatives et respect de la limite VARCHAR(20)
+    let staffNumber;
+    let attempts = 0;
+    const maxAttempts = 5;
+    
+    while (attempts < maxAttempts) {
+      try {
+        staffNumber = await generateStaffNumber(position);
+        console.log(`📝 Tentative ${attempts + 1}: Numéro généré: ${staffNumber} (${staffNumber.length} caractères)`);
+        
+        // IMPORTANT: Vérifier la longueur avant d'utiliser le numéro
+        if (staffNumber.length > 20) {
+          console.log(`⚠️ Numéro trop long (${staffNumber.length} > 20), génération fallback...`);
+          const shortCode = position ? position.substring(0, 2).toUpperCase() : 'ST';
+          const timestamp = Date.now().toString().slice(-6);
+          staffNumber = `${shortCode}${timestamp}`;
+          console.log(`🔄 Fallback généré: ${staffNumber} (${staffNumber.length} caractères)`);
+        }
+        
+        // Vérifier immédiatement si le numéro est disponible
+        const numberCheck = await query(
+          'SELECT COUNT(*) as count FROM staff WHERE staff_number = $1',
+          [staffNumber]
+        );
+        
+        if (numberCheck.rows[0].count === 0) {
+          console.log('✅ Numéro de personnel disponible:', staffNumber);
+          break;
+        } else {
+          console.log('⚠️ Numéro déjà pris, nouvelle tentative...');
+          attempts++;
+          if (attempts >= maxAttempts) {
+            // Fallback final avec timestamp unique et court
+            const timestamp = Date.now().toString().slice(-8);
+            const shortCode = position ? position.substring(0, 2).toUpperCase() : 'ST';
+            staffNumber = `${shortCode}${timestamp}`;
+            console.log('🆘 Utilisation du fallback final:', staffNumber);
+          }
+        }
+      } catch (numberError) {
+        console.error('❌ Erreur génération numéro:', numberError);
+        attempts++;
+        if (attempts >= maxAttempts) {
+          // Fallback d'urgence
+          const timestamp = Date.now().toString().slice(-8);
+          staffNumber = `EMP${timestamp}`;
+          console.log('🚨 Fallback d\'urgence:', staffNumber);
+        }
+      }
+    }
 
-    // FIXED: Create employee (not update)
+    // VÉRIFICATION FINALE: S'assurer que le numéro respecte la contrainte
+    if (staffNumber.length > 20) {
+      const emergencyNumber = `EMP${Date.now().toString().slice(-8)}`;
+      console.log(`🚨 ERREUR: Numéro encore trop long! Utilisation numéro d'urgence: ${emergencyNumber}`);
+      staffNumber = emergencyNumber;
+    }
+
+    // Créer l'employé
     const createResult = await query(`
       INSERT INTO staff (
         id,
@@ -732,7 +786,7 @@ router.post('/', async (req, res) => {
       )
       RETURNING *
     `, [
-      staffNumber,
+      staffNumber, // Numéro respectant la limite de 20 caractères
       first_name?.trim(),
       last_name?.trim(),
       position,
@@ -765,13 +819,13 @@ router.post('/', async (req, res) => {
 
     const newEmployee = createResult.rows[0];
     
-    // Enrich employee data
+    // Enrichir les données de l'employé
     newEmployee.full_name = `${newEmployee.first_name} ${newEmployee.last_name}`;
     newEmployee.initials = `${newEmployee.first_name[0]}${newEmployee.last_name[0]}`.toUpperCase();
     newEmployee.contract_type_label = getContractTypeLabel(newEmployee.contract_type);
     newEmployee.employment_type_label = getEmploymentTypeLabel(newEmployee.employment_type);
 
-    console.log('✅ Employé créé:', newEmployee.staff_number);
+    console.log('✅ Employé créé avec succès:', newEmployee.staff_number);
 
     res.status(201).json({
       success: true,
@@ -781,10 +835,32 @@ router.post('/', async (req, res) => {
 
   } catch (error) {
     console.error('💥 Erreur création employé:', error);
+    
+    // Gestion spécifique des erreurs
+    if (error.code === '23505' && error.constraint === 'staff_staff_number_key') {
+      return res.status(409).json({
+        success: false,
+        error: 'Conflit de numéro de personnel. Veuillez réessayer.',
+        details: 'Un numéro de personnel identique existe déjà'
+      });
+    }
+    
+    if (error.code === '22001') {
+      return res.status(400).json({
+        success: false,
+        error: 'Données trop longues pour les champs de base de données',
+        details: 'Veuillez raccourcir les informations saisies'
+      });
+    }
+    
     res.status(500).json({
       success: false,
       error: 'Erreur lors de la création de l\'employé',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? {
+        message: error.message,
+        code: error.code,
+        constraint: error.constraint
+      } : undefined
     });
   }
 });

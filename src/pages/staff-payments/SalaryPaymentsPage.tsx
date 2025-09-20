@@ -138,191 +138,212 @@ const SalaryPaymentsPage: React.FC = () => {
     setErrorMessage('');
   };
 
-  // ✅ FONCTION DE GÉNÉRATION PDF CORRIGÉE
-  const generateReceiptPDF = (payment: Payment) => {
-    const doc = new jsPDF();
-    
-    // Configuration des polices et couleurs
-    const primaryColor: [number, number, number] = [0, 123, 255]; // Bleu
-    const textColor: [number, number, number] = [51, 51, 51]; // Gris foncé
-    const lightGray: [number, number, number] = [248, 249, 250]; // Gris clair pour fond
-    
-    // ✅ HEADER AVEC LE NOM CORRIGÉ
-    doc.setFillColor(...lightGray);
-    doc.rect(0, 0, 210, 40, 'F');
-    doc.addFont('arabic-font.ttf', 'Arabic', 'normal');
-    
-    // Nom de l'école en français
-    doc.setTextColor(...primaryColor);
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Haramain', 105, 15, { align: 'center' });
-    
-    // Nom de l'école en arabe
-    // doc.setFontSize(16);
-    // doc.text('مركز عبيد بن كعب', 105, 25, { align: 'center' });
-    
-    // Titre du reçu
-    doc.setTextColor(...textColor);
-    doc.setFontSize(14);
+  // === FONCTION DE FORMATAGE CORRIGÉE POUR LE CLIENT ===
+const formatCurrencyForPDF = (amount: number | string): string => {
+  if (!amount || isNaN(Number(amount))) return '0 FG';
+  
+  const numAmount = Number(amount);
+  // Utiliser une méthode qui garantit des espaces comme séparateurs
+  const formatted = numAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return `${formatted} FG`;
+};
+
+// === FONCTION DE GÉNÉRATION PDF CORRIGÉE ===
+const generateReceiptPDF = (payment: Payment) => {
+  const doc = new jsPDF();
+  
+  // Configuration des polices et couleurs
+  const primaryColor: [number, number, number] = [0, 123, 255]; // Bleu
+  const textColor: [number, number, number] = [51, 51, 51]; // Gris foncé
+  const lightGray: [number, number, number] = [248, 249, 250]; // Gris clair pour fond
+  
+  // HEADER AVEC LE NOM CORRIGÉ
+  doc.setFillColor(...lightGray);
+  doc.rect(0, 0, 210, 40, 'F');
+  
+  // Nom de l'école en français
+  doc.setTextColor(...primaryColor);
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Haramain', 105, 15, { align: 'center' });
+  
+  // Titre du reçu
+  doc.setTextColor(...textColor);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Reçu de Paiement de Salaire', 105, 35, { align: 'center' });
+  
+  // Ligne de séparation
+  doc.setDrawColor(...primaryColor);
+  doc.setLineWidth(0.5);
+  doc.line(20, 45, 190, 45);
+  
+  let yPos = 60;
+  
+  // INFORMATIONS DU REÇU
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...primaryColor);
+  doc.text('Informations du Reçu', 20, yPos);
+  
+  yPos += 10;
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...textColor);
+  doc.setFontSize(10);
+  
+  // Première colonne
+  doc.text('Numéro de reçu:', 20, yPos);
+  doc.setFont('helvetica', 'bold');
+  doc.text(payment.receipt_number, 60, yPos);
+  doc.setFont('helvetica', 'normal');
+  
+  doc.text('Date de paiement:', 110, yPos);
+  doc.setFont('helvetica', 'bold');
+  doc.text(payment.payment_date_formatted, 150, yPos);
+  doc.setFont('helvetica', 'normal');
+  
+  yPos += 8;
+  doc.text('Type de paiement:', 20, yPos);
+  doc.setFont('helvetica', 'bold');
+  doc.text(payment.type_label, 60, yPos);
+  doc.setFont('helvetica', 'normal');
+  
+  doc.text('Période:', 110, yPos);
+  doc.setFont('helvetica', 'bold');
+  doc.text(payment.period_display, 150, yPos);
+  doc.setFont('helvetica', 'normal');
+  
+  yPos += 8;
+  doc.text('Méthode:', 20, yPos);
+  doc.setFont('helvetica', 'bold');
+  doc.text(payment.method_label, 60, yPos);
+  doc.setFont('helvetica', 'normal');
+  
+  doc.text('Statut:', 110, yPos);
+  doc.setFont('helvetica', 'bold');
+  doc.text(payment.status_label, 150, yPos);
+  doc.setFont('helvetica', 'normal');
+  
+  yPos += 20;
+  
+  // INFORMATIONS DE L'EMPLOYÉ
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...primaryColor);
+  doc.text('Informations de l\'Employé', 20, yPos);
+  
+  yPos += 10;
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...textColor);
+  doc.setFontSize(10);
+  
+  doc.text('Nom complet:', 20, yPos);
+  doc.setFont('helvetica', 'bold');
+  doc.text(payment.staff_name, 60, yPos);
+  doc.setFont('helvetica', 'normal');
+  
+  doc.text('Numéro d\'employé:', 110, yPos);
+  doc.setFont('helvetica', 'bold');
+  doc.text(payment.staff_number, 150, yPos);
+  doc.setFont('helvetica', 'normal');
+  
+  yPos += 8;
+  doc.text('Poste:', 20, yPos);
+  doc.setFont('helvetica', 'bold');
+  doc.text(payment.position, 60, yPos);
+  doc.setFont('helvetica', 'normal');
+  
+  doc.text('Département:', 110, yPos);
+  doc.setFont('helvetica', 'bold');
+  doc.text(payment.department, 150, yPos);
+  doc.setFont('helvetica', 'normal');
+  
+  yPos += 20;
+  
+  // MONTANT - SECTION MISE EN VALEUR AVEC FORMATAGE CORRIGÉ
+  doc.setFillColor(231, 243, 255); // Bleu très clair
+  doc.rect(20, yPos - 5, 170, 25, 'F');
+  
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...primaryColor);
+  doc.text('Montant Payé', 105, yPos + 5, { align: 'center' });
+  
+  doc.setFontSize(18);
+  // CORRECTION: Utiliser la fonction de formatage corrigée
+  const formattedAmount = formatCurrencyForPDF(payment.amount || payment.formatted_amount);
+  doc.text(formattedAmount, 105, yPos + 15, { align: 'center' });
+  
+  // Montant net si différent
+  if (payment.net_amount && payment.net_amount !== payment.amount) {
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text('Reçu de Paiement de Salaire', 105, 35, { align: 'center' });
-    
-    // Ligne de séparation
-    doc.setDrawColor(...primaryColor);
-    doc.setLineWidth(0.5);
-    doc.line(20, 45, 190, 45);
-    
-    let yPos = 60;
-    
-    // ✅ INFORMATIONS DU REÇU
+    const formattedNetAmount = formatCurrencyForPDF(payment.net_amount);
+    doc.text(`Montant net: ${formattedNetAmount}`, 105, yPos + 22, { align: 'center' });
+  }
+  
+  yPos += 35;
+  
+  // NOTES SI PRÉSENTES
+  if (payment.notes) {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...primaryColor);
-    doc.text('Informations du Reçu', 20, yPos);
+    doc.text('Notes', 20, yPos);
     
-    yPos += 10;
+    yPos += 8;
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...textColor);
     doc.setFontSize(10);
     
-    // Première colonne
-    doc.text('Numéro de reçu:', 20, yPos);
-    doc.setFont('helvetica', 'bold');
-    doc.text(payment.receipt_number, 60, yPos);
-    doc.setFont('helvetica', 'normal');
-    
-    doc.text('Date de paiement:', 110, yPos);
-    doc.setFont('helvetica', 'bold');
-    doc.text(payment.payment_date_formatted, 150, yPos);
-    doc.setFont('helvetica', 'normal');
-    
-    yPos += 8;
-    doc.text('Type de paiement:', 20, yPos);
-    doc.setFont('helvetica', 'bold');
-    doc.text(payment.type_label, 60, yPos);
-    doc.setFont('helvetica', 'normal');
-    
-    doc.text('Période:', 110, yPos);
-    doc.setFont('helvetica', 'bold');
-    doc.text(payment.period_display, 150, yPos);
-    doc.setFont('helvetica', 'normal');
-    
-    yPos += 8;
-    doc.text('Méthode:', 20, yPos);
-    doc.setFont('helvetica', 'bold');
-    doc.text(payment.method_label, 60, yPos);
-    doc.setFont('helvetica', 'normal');
-    
-    doc.text('Statut:', 110, yPos);
-    doc.setFont('helvetica', 'bold');
-    doc.text(payment.status_label, 150, yPos);
-    doc.setFont('helvetica', 'normal');
-    
-    yPos += 20;
-    
-    // ✅ INFORMATIONS DE L'EMPLOYÉ
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...primaryColor);
-    doc.text('Informations de l\'Employé', 20, yPos);
-    
-    yPos += 10;
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...textColor);
-    doc.setFontSize(10);
-    
-    doc.text('Nom complet:', 20, yPos);
-    doc.setFont('helvetica', 'bold');
-    doc.text(payment.staff_name, 60, yPos);
-    doc.setFont('helvetica', 'normal');
-    
-    doc.text('Numéro d\'employé:', 110, yPos);
-    doc.setFont('helvetica', 'bold');
-    doc.text(payment.staff_number, 150, yPos);
-    doc.setFont('helvetica', 'normal');
-    
-    yPos += 8;
-    doc.text('Poste:', 20, yPos);
-    doc.setFont('helvetica', 'bold');
-    doc.text(payment.position, 60, yPos);
-    doc.setFont('helvetica', 'normal');
-    
-    doc.text('Département:', 110, yPos);
-    doc.setFont('helvetica', 'bold');
-    doc.text(payment.department, 150, yPos);
-    doc.setFont('helvetica', 'normal');
-    
-    yPos += 20;
-    
-    // ✅ MONTANT - SECTION MISE EN VALEUR
-    doc.setFillColor(231, 243, 255); // Bleu très clair
-    doc.rect(20, yPos - 5, 170, 25, 'F');
-    
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...primaryColor);
-    doc.text('Montant Payé', 105, yPos + 5, { align: 'center' });
-    
-    doc.setFontSize(18);
-    doc.text(payment.formatted_amount, 105, yPos + 15, { align: 'center' });
-    
-    // Montant net si différent
-    if (payment.formatted_net_amount && payment.formatted_net_amount !== payment.formatted_amount) {
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Montant net: ${payment.formatted_net_amount}`, 105, yPos + 22, { align: 'center' });
-    }
-    
-    yPos += 35;
-    
-    // ✅ NOTES SI PRÉSENTES
-    if (payment.notes) {
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...primaryColor);
-      doc.text('Notes', 20, yPos);
-      
-      yPos += 8;
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...textColor);
-      doc.setFontSize(10);
-      
-      // Découper les notes en lignes si elles sont longues
-      const splitNotes = doc.splitTextToSize(payment.notes, 170);
-      doc.text(splitNotes, 20, yPos);
-      yPos += splitNotes.length * 5 + 10;
-    }
-    
-    // ✅ SIGNATURES
-    yPos = Math.max(yPos, 220); // Position minimum pour les signatures
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...textColor);
-    
-    // Lignes de signature
-    doc.line(30, yPos, 80, yPos);
-    doc.line(130, yPos, 180, yPos);
-    
-    doc.text('Signature de l\'employé', 55, yPos + 8, { align: 'center' });
-    doc.text('Signature du responsable', 155, yPos + 8, { align: 'center' });
-    
-    // ✅ FOOTER
-    yPos += 25;
-    doc.setFontSize(8);
-    doc.setTextColor(128, 128, 128); // Gris
-    
-    const currentDate = new Date();
-    const dateStr = currentDate.toLocaleDateString('fr-FR');
-    const timeStr = currentDate.toLocaleTimeString('fr-FR');
-    
-    doc.text(`Ce reçu a été généré automatiquement le ${dateStr} à ${timeStr}`, 105, yPos, { align: 'center' });
-    doc.text('Haramain - الحرمين- Système de Gestion des Paiements', 105, yPos + 5, { align: 'center' });
-    
-    // ✅ TÉLÉCHARGER LE PDF
-    doc.save(`recu_${payment.receipt_number}.pdf`);
-  };
+    // Découper les notes en lignes si elles sont longues
+    const splitNotes = doc.splitTextToSize(payment.notes, 170);
+    doc.text(splitNotes, 20, yPos);
+    yPos += splitNotes.length * 5 + 10;
+  }
+  
+  // SIGNATURES
+  yPos = Math.max(yPos, 220); // Position minimum pour les signatures
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...textColor);
+  
+  // Lignes de signature
+  doc.line(30, yPos, 80, yPos);
+  doc.line(130, yPos, 180, yPos);
+  
+  doc.text('Signature de l\'employé', 55, yPos + 8, { align: 'center' });
+  doc.text('Signature du responsable', 155, yPos + 8, { align: 'center' });
+  
+  // FOOTER
+  yPos += 25;
+  doc.setFontSize(8);
+  doc.setTextColor(128, 128, 128); // Gris
+  
+  const currentDate = new Date();
+  const dateStr = currentDate.toLocaleDateString('fr-FR');
+  const timeStr = currentDate.toLocaleTimeString('fr-FR');
+  
+  doc.text(`Ce reçu a été généré automatiquement le ${dateStr} à ${timeStr}`, 105, yPos, { align: 'center' });
+  doc.text('Haramain - الحرمين - Système de Gestion des Paiements', 105, yPos + 5, { align: 'center' });
+  
+  // TÉLÉCHARGER LE PDF
+  doc.save(`recu_${payment.receipt_number}.pdf`);
+};
+
+// === FONCTION ALTERNATIVE SI VOUS PRÉFÉREZ UTILISER toLocaleString ===
+const formatCurrencyWithLocale = (amount: number | string): string => {
+  if (!amount || isNaN(Number(amount))) return '0 FG';
+  
+  const numAmount = Number(amount);
+  return `${numAmount.toLocaleString('fr-FR', {
+    useGrouping: true,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  })} FG`;
+};
+
 
   // ✅ TÉLÉCHARGEMENT PDF AMÉLIORÉ
   const downloadReceiptPDF = async (payment: Payment) => {

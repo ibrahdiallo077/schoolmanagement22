@@ -79,15 +79,15 @@ router.use((req, res, next) => {
 // === UTILITAIRES ===
 const formatCurrency = (amount) => {
   try {
-    if (!amount || isNaN(amount)) return '0 GNF';
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'GNF',
-      minimumFractionDigits: 0
-    }).format(amount);
+    if (!amount || isNaN(amount)) return '0 FG';
+    
+    const numAmount = Number(amount);
+    // Méthode manuelle pour garantir des espaces comme séparateurs
+    const formatted = numAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return `${formatted} FG`;
   } catch (error) {
     console.error('❌ Erreur formatage devise:', error);
-    return `${amount} GNF`;
+    return `${amount} FG`;
   }
 };
 
